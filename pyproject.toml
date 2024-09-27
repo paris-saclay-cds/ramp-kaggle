@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ramp-kaggle"
+authors = [
+    {name = "Albert Thomas", email = "albert.thomas@centraliens.net"},
+    {name = "Balazs Kegl", email = "balazs.kegl@gmail.com"},
+    {name = "Giuseppe Paolo", email = "giuseppe.g.paolo@gmail.com"}
+]
+dynamic = ["version", "readme", "dependencies"]
+description = "Functions to interact with Kaggle"
+classifiers=[
+    'Intended Audience :: Science/Research',
+    'Intended Audience :: Developers',
+    'Topic :: Software Development',
+    'Topic :: Scientific/Engineering',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX',
+    'Operating System :: Unix',
+    'Operating System :: MacOS',
+]
+
+[project.optional-dependencies]
+dev = ['black', 'ruff', 'pytest', 'pytest-cov']
+
+[tool.setuptools]
+license-files = ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']
+
+[project.scripts]
+ramp-download-leaderboards = "rampka.download_leaderboards:start"
+ramp-update-results = "rampka.update_results:start"
+ramp-submit-to-kaggle = "rampka.submit_to_kaggle:start"
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.md"] }
+dependencies = { file = ["requirements.txt"] }
+
+[tool.pytest.ini_options]
+filterwarnings = [
+]
+markers = [
+]
+
+[tool.coverage.run]
+
+[tool.coverage.report]

@@ -48,7 +48,7 @@ def get_kaggle_leaderboards(ramp_kits):
                 leaderboard_scores_df = rk.actions.get_leaderboard_scores(
                     download_destination=Path(ramp_kit),
                     kaggle_api=kaggle_api,
-                    competition=metadata["kaggle_name"],
+                    competition=metadata["kaggle"]["name"],
                     phase=phase,
                 )
                 leaderboard_scores = clean_leaderboard(leaderboard_scores_df)

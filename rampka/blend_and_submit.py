@@ -94,7 +94,7 @@ def main(
             first_fold_idx,
             round_idx,
         )
-        for blend_type in ["last_blend", "bagged_then_blended"]:            
+        for blend_type in ["last_blend", "bagged_then_blended"]:
             submission_file_name = f"auto_{kit_suffix}_{blend_type}_{str(first_fold_idx + n_folds_final_blend).zfill(3)}_r{round_idx}.csv"
             if len(kaggle_results_df) == 0 or (
                 (final_test_predictions_path / submission_file_name).exists() and (

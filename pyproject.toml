@@ -32,6 +32,8 @@ license-files = ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']
 ramp-download-leaderboards = "rampka.download_leaderboards:start"
 ramp-update-results = "rampka.update_results:start"
 ramp-submit-to-kaggle = "rampka.submit_to_kaggle:start"
+ramp-blend-and-submit = "rampka.blend_and_submit:start"
+ramp-save-kaggle-results = "rampka.save_kaggle_results:start"
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.md"] }

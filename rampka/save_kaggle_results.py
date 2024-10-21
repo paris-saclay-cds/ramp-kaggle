@@ -24,13 +24,13 @@ def extract_kaggle_submission_info(f_name):
         "n_folds_final_blend": None,
         "round_idx": -1  # Default value if no round_idx is found
     }
-    
+
     if match:
         kaggle_submission_info['version'] = match.group(1)
         kaggle_submission_info['number'] = match.group(2)
         kaggle_submission_info['blend_type'] = "bagged_then_blended" if match.group(3) == "bagged_then_blended" else "blended_then_bagged"
         kaggle_submission_info['n_folds_final_blend'] = int(match.group(4))
-        
+
         # Check if there is a round_idx
         round_idx = match.group(5)
         if round_idx:
@@ -79,7 +79,7 @@ def main(
     first_fold_idx,
 ):
     round_idxs = [20, 30, 50, 70, 100, 150, 200, 300, 500, 700, 1000, 1500, 2000, 3000, 5000, 7000, 10000]
-    
+
     ramp_kit_dir = f"{ramp_kit}_v{version}_n{number}"
     problem = rw.utils.assert_read_problem(ramp_kit_dir=ramp_kit_dir)
     score_names = [st.name for st in problem.score_types]
@@ -87,7 +87,7 @@ def main(
     valid_score_name = f'valid_{score_names[-1]}'
     metadata = json.load(open(Path(ramp_kit_dir) / "data" / "metadata.json"))
     competition = metadata["kaggle"]["name"]
-    
+
     all_actions = rs.actions.get_all_actions(ramp_kit_dir)
     blend_actions = [ra for ra in all_actions if ra.name == "blend" and
                      ra.kwargs["fold_idxs"] == range(first_fold_idx, first_fold_idx + n_folds_hyperopt)]
@@ -107,17 +107,17 @@ def main(
         kaggle_results_df["ramp_kit"] = ramp_kit
         results_path = Path(ramp_kit_dir) / "results"
         results_path.mkdir(exist_ok=True)
-    
+
         save_df = kaggle_results_df[kaggle_results_df["blend_type"] == "blended_then_bagged"]
         save_df = save_df.drop_duplicates(subset='round_idx', keep='last')
         save_df = save_df.sort_values("round_idx")
         save_df.to_csv(results_path / "kaggle_results_blended_then_bagged.csv", index=False)
         print(f"saved blended_then_bagged round idxs: {list(save_df['round_idx'])}")
-    
+
         save_df = kaggle_results_df[kaggle_results_df["blend_type"] == "bagged_then_blended"]
         save_df = save_df.drop_duplicates(subset='round_idx', keep='last')
         save_df = save_df.sort_values("round_idx")
-        save_df.to_csv(results_path / "kaggle_results_bagged_then_blended.csv", index=False)    
+        save_df.to_csv(results_path / "kaggle_results_bagged_then_blended.csv", index=False)
         print(f"saved bagged_then_blended round idxs: {list(save_df['round_idx'])}")
     except Exception as e:
         print(e)

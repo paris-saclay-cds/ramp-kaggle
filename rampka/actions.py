@@ -1,6 +1,7 @@
 import os
 import time
 import zipfile
+import datetime
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
@@ -12,6 +13,33 @@ import rampds as rs
 import requests
 from kaggle.api.kaggle_api_extended import KaggleApi
 
+
+def kaggle_prank(score, leaderboard_scores, problem):
+    if problem.score_types[0].is_lower_the_better:
+        return 100 * np.less(float(score), leaderboard_scores).mean()
+    else:
+        return 100 * np.greater(float(score), leaderboard_scores).mean()
+
+def get_kaggle_results(competition: str) -> pd.DataFrame:
+    kaggle_api = KaggleApi()
+    kaggle_api.authenticate()
+    results_df = pd.DataFrame()
+    try:
+        results_df["submission_id"] = kaggle_api.competition_submissions(competition=competition)
+        results_df["public_score"] = [kaggle_api.string(getattr(id, "publicScore")) for id in results_df["submission_id"]]
+        # If there is anything wrong with the submission, kaggle sends back empty strings for eg the scores. This
+        # will convert it into nans which can then be checked by the downloading function
+        results_df["public_score"] = pd.to_numeric(results_df["public_score"], errors='coerce')
+        results_df["private_score"] = [kaggle_api.string(getattr(id, "privateScore")) for id in results_df["submission_id"]]
+        results_df["private_score"] = pd.to_numeric(results_df["private_score"], errors='coerce')
+        try:
+            results_df["submission_time"] = pd.to_datetime([kaggle_api.string(getattr(id, "description")) for id in results_df["submission_id"]])
+        except:
+            results_df["submission_time"] = datetime.date.today()
+        results_df["file_name"] = [kaggle_api.string(getattr(id, "fileName")) for id in results_df["submission_id"]]
+    except Exception as e:
+        print(e)
+    return results_df
 
 
 def find_best(submission: str, ramp_kit_dir: Path | str) -> str:
@@ -36,7 +64,12 @@ def download_file(download_url: str, destination: Path):
     response = requests.get(
         download_url, stream=True, verify=False,
     )
-    response.raise_for_status()  # raises an HTTPError for bad responses
+    try:
+        response.raise_for_status()  # raises an HTTPError for bad responses
+    except Exception as e:
+        print(e)
+        print(f"Try to manually place the leaderboard zip file into {destination} and rerun the command")
+        return
 
     with open(destination, "wb") as file:
         for chunk in response.iter_content(chunk_size=8192):
@@ -84,7 +117,7 @@ def download_leaderboard(
     download_url = f"https://www.kaggle.com/competitions/{num_id}/leaderboard/download/{phase}"
     print(download_url)
     download_file(
-        f"https://www.kaggle.com/competitions/{num_id}/leaderboard/download/{phase}",
+        download_url,
         zip_destination,
     )
 

@@ -98,6 +98,7 @@ def main(
             n_folds_final_blend,
             n_folds_hyperopt,
             first_fold_idx,
+            race_blend,
             round_idx,
         )
         for blend_type in ["last_blend", "bagged_then_blended"]:

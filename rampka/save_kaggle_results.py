@@ -15,7 +15,7 @@ from kaggle.rest import ApiException
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 def extract_kaggle_submission_info(f_name):
-    pattern = r'auto_v(\d+_\d+)_n(\d+)_(bagged_then_blended|last_blend)_(\d+)(?:_r(\d+))?\.csv'
+    pattern = r'auto_v(.+?)_n(\d+)_(bagged_then_blended|last_blend)_(\d+)(?:_r(\d+))?\.csv'
     match = re.search(pattern, f_name)
     kaggle_submission_info = {
         "version": None,

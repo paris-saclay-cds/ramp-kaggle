@@ -48,6 +48,7 @@ def main(
     number,
     ramp_setup_dir,
 ):
+    base_predictors = ["lgbm", "xgboost", "catboost", "skmlp", "sket", "fastai",]
     kaggle_api = KaggleApi()
     kaggle_api.authenticate()
     results_summary_df = pd.read_csv("results_summary.csv")
@@ -84,7 +85,7 @@ def main(
                 pass
         available_phases = leaderboard_scores.keys()
         print(f"Available leaderboards are {available_phases}")
-        n_kaggle_files = 7 * len(available_phases)  # growing folds, last blend, bag then blend, and four best models
+        n_kaggle_files = (3 + len(base_predictors)) * len(available_phases)  # growing folds, last blend, bag then blend, and best base predictors
         kaggle_file_counter = 0
 
         final_test_predictions_path = Path(ramp_kit_dir) / "final_test_predictions"
@@ -159,7 +160,7 @@ def main(
                 last_blend_stop_time = last_kaggle_action.start_time
             blend_action = [ra for ra in blend_actions if ra.start_time <= last_kaggle_action.start_time][-1]
             results_summary_df.loc[row_i, f"valid_{blend_type}"] = blend_action.blended_score
-            for submission in ["lgbm", "xgboost", "catboost", "skmlp"]:
+            for submission in base_predictors:
                 try:
                     results_summary_df.loc[row_i, f"contributivity_{blend_type}_{submission}"] =\
                         np.array([c for s, c in blend_action.contributivities.items() if s[:len(submission)] == submission]).sum()
@@ -206,7 +207,7 @@ def main(
         # growing folds and last blend done but not bagged and blended
         if failure_count == 2 and not no_growing_folds:
             continue
-        for submission in ["lgbm", "xgboost", "catboost", "skmlp"]:
+        for submission in base_predictors:
             submission_file_name = f"auto_{kit_suffix}_best_{submission}.csv"
             submission_hyperopt_actions = [ra.runtime for ra in hyperopt_actions if ra.kwargs["submission"].startswith(submission)]
             results_summary_df.loc[row_i, f"runtime_hyperopt_{submission}"] = pd.to_timedelta(np.array(submission_hyperopt_actions).sum())
